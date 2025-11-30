@@ -2,7 +2,21 @@ const db = require('../config/db');
 
 const getAllMoves = async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM asset_moves ORDER BY id ASC');
+    const result = await db.query(`
+      SELECT 
+        am.*,
+        a.name as asset_name,
+        a.asset_tag,
+        l1.name as from_location,
+        l2.name as to_location,
+        u.full_name as moved_by_name
+      FROM asset_moves am
+      LEFT JOIN assets a ON am.asset_id = a.id
+      LEFT JOIN locations l1 ON am.from_location_id = l1.id
+      LEFT JOIN locations l2 ON am.to_location_id = l2.id
+      LEFT JOIN users u ON am.moved_by = u.id
+      ORDER BY am.move_date DESC, am.id DESC
+    `);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error(error);

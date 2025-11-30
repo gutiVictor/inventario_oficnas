@@ -8,6 +8,7 @@ import {
     Store,
     ClipboardList,
     Wrench,
+    TruckIcon,
     Menu,
     X,
 } from 'lucide-react';
@@ -17,6 +18,7 @@ const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Activos', href: '/assets', icon: Package },
     { name: 'Asignaciones', href: '/assignments', icon: ClipboardList },
+    { name: 'Movimientos', href: '/moves', icon: TruckIcon },
     { name: 'Mantenimiento', href: '/maintenance', icon: Wrench },
     { name: 'Usuarios', href: '/users', icon: Users },
     { name: 'Ubicaciones', href: '/locations', icon: MapPin },
@@ -63,8 +65,8 @@ export default function Layout() {
                                 to={item.href}
                                 onClick={() => setSidebarOpen(false)}
                                 className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${isActive
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                                     }`}
                             >
                                 <item.icon className="h-5 w-5" />

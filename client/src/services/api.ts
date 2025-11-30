@@ -95,6 +95,8 @@ export const movesAPI = {
     getAll: () => api.get('/asset-moves'),
     getById: (id: number) => api.get(`/asset-moves/${id}`),
     create: (data: any) => api.post('/asset-moves', data),
+    update: (id: number, data: any) => api.put(`/asset-moves/${id}`, data),
+    delete: (id: number) => api.delete(`/asset-moves/${id}`),
 };
 
 export default api;

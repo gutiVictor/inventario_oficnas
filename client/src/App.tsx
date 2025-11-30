@@ -9,6 +9,7 @@ import Categories from './pages/Categories';
 import Suppliers from './pages/Suppliers';
 import Assignments from './pages/Assignments';
 import Maintenance from './pages/Maintenance';
+import Moves from './pages/Moves';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -34,6 +35,7 @@ function App() {
             <Route path="categories" element={<Categories />} />
             <Route path="suppliers" element={<Suppliers />} />
             <Route path="assignments" element={<Assignments />} />
+            <Route path="moves" element={<Moves />} />
             <Route path="maintenance" element={<Maintenance />} />
           </Route>
         </Routes>
