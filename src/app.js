@@ -37,7 +37,8 @@ app.get('/', (req, res) => {
       suppliers: '/api/suppliers',
       maintenance: '/api/maintenance-orders',
       assignments: '/api/asset-assignments',
-      moves: '/api/asset-moves'
+      moves: '/api/asset-moves',
+      audit: '/api/audit-logs'
     }
   });
 });
@@ -51,6 +52,7 @@ app.use('/api/suppliers', require('./routes/suppliers.routes'));
 app.use('/api/maintenance-orders', require('./routes/maintenance.routes'));
 app.use('/api/asset-assignments', require('./routes/assignments.routes'));
 app.use('/api/asset-moves', require('./routes/moves.routes'));
+app.use('/api/audit-logs', require('./routes/audit.routes'));
 
 // 404 Handler - must be after all routes
 app.use(notFoundHandler);

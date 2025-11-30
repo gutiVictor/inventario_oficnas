@@ -99,4 +99,9 @@ export const movesAPI = {
     delete: (id: number) => api.delete(`/asset-moves/${id}`),
 };
 
+export const auditAPI = {
+    getAll: (params?: Record<string, any>) => api.get('/audit-logs', { params }),
+    getById: (id: number) => api.get(`/audit-logs/${id}`),
+};
+
 export default api;

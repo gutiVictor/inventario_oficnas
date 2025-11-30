@@ -11,6 +11,7 @@ import {
     TruckIcon,
     Menu,
     X,
+    FileText,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -24,6 +25,7 @@ const navigation = [
     { name: 'Ubicaciones', href: '/locations', icon: MapPin },
     { name: 'Categorías', href: '/categories', icon: FolderTree },
     { name: 'Proveedores', href: '/suppliers', icon: Store },
+    { name: 'Auditoría', href: '/audit', icon: FileText },
 ];
 
 export default function Layout() {

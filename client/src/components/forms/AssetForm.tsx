@@ -91,9 +91,23 @@ export default function AssetForm({ isOpen, onClose, assetToEdit }: AssetFormPro
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const categoryOptions = categories?.data?.data?.map((c: any) => ({ value: c.id, label: c.name })) || [];
-    const locationOptions = locations?.data?.data?.map((l: any) => ({ value: l.id, label: l.name })) || [];
-    const supplierOptions = suppliers?.data?.data?.map((s: any) => ({ value: s.id, label: s.name })) || [];
+    // Extract data arrays handling different response structures
+    const categoriesData = Array.isArray(categories?.data?.data) ? categories.data.data : (Array.isArray(categories?.data) ? categories.data : []);
+    const locationsData = Array.isArray(locations?.data?.data) ? locations.data.data : (Array.isArray(locations?.data) ? locations.data : []);
+    const suppliersData = Array.isArray(suppliers?.data?.data) ? suppliers.data.data : (Array.isArray(suppliers?.data) ? suppliers.data : []);
+
+    const categoryOptions = [
+        { value: '', label: 'Seleccionar categoría...' },
+        ...categoriesData.map((c: any) => ({ value: c.id.toString(), label: c.name }))
+    ];
+    const locationOptions = [
+        { value: '', label: 'Seleccionar ubicación...' },
+        ...locationsData.map((l: any) => ({ value: l.id.toString(), label: l.name }))
+    ];
+    const supplierOptions = [
+        { value: '', label: 'Seleccionar proveedor...' },
+        ...suppliersData.map((s: any) => ({ value: s.id.toString(), label: s.name }))
+    ];
 
     return (
         <Modal
