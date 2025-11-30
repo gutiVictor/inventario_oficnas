@@ -1,14 +1,25 @@
-import { useQuery } from '@tanstack/react-query';
-import { maintenanceAPI } from '../services/api';
-import { Wrench, Search, Filter, Calendar, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { maintenanceAPI } from '../services/api';
+import { Wrench, Search, Filter, AlertTriangle, CheckCircle2, Edit2, Trash2 } from 'lucide-react';
+import MaintenanceForm from '../components/forms/MaintenanceForm';
 
 export default function Maintenance() {
+    const queryClient = useQueryClient();
     const [search, setSearch] = useState('');
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
     const { data, isLoading, error } = useQuery({
         queryKey: ['maintenance'],
         queryFn: () => maintenanceAPI.getAll(),
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: (id: number) => maintenanceAPI.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['maintenance'] });
+        },
     });
 
     const maintenanceOrders = Array.isArray(data?.data?.data) ? data.data.data : (Array.isArray(data?.data) ? data.data : []);
@@ -38,6 +49,22 @@ export default function Maintenance() {
         }
     };
 
+    const handleEdit = (order: any) => {
+        setSelectedOrder(order);
+        setIsFormOpen(true);
+    };
+
+    const handleDelete = (id: number) => {
+        if (window.confirm('¿Estás seguro de eliminar esta orden de mantenimiento?')) {
+            deleteMutation.mutate(id);
+        }
+    };
+
+    const handleCloseForm = () => {
+        setIsFormOpen(false);
+        setSelectedOrder(null);
+    };
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -50,7 +77,10 @@ export default function Maintenance() {
                         Órdenes de trabajo y mantenimiento preventivo/correctivo
                     </p>
                 </div>
-                <button className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+                <button
+                    onClick={() => setIsFormOpen(true)}
+                    className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
                     <Wrench className="h-4 w-4" />
                     Nueva Orden
                 </button>
@@ -90,7 +120,7 @@ export default function Maintenance() {
                     {filteredOrders.map((order: any) => (
                         <div
                             key={order.id}
-                            className="group relative overflow-hidden rounded-lg border border-border bg-card p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                            className="group relative overflow-hidden rounded-lg border border-border bg-card p-6 hover:shadow-lg transition-shadow"
                         >
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex items-center gap-3">
@@ -100,7 +130,7 @@ export default function Maintenance() {
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-foreground">
-                                            {order.type === 'preventive' ? 'Preventivo' : 'Correctivo'}
+                                            {order.type === 'preventive' ? 'Preventivo' : order.type === 'corrective' ? 'Correctivo' : 'Actualización'}
                                         </h3>
                                         <p className="text-sm text-muted-foreground">ID: {order.id}</p>
                                     </div>
@@ -125,10 +155,12 @@ export default function Maintenance() {
                                         {new Date(order.planned_date).toLocaleDateString()}
                                     </span>
                                 </div>
-                                {order.cost_total > 0 && (
+                                {(order.cost_parts > 0 || order.cost_labor > 0) && (
                                     <div className="flex justify-between py-1">
                                         <span className="text-muted-foreground">Costo Total:</span>
-                                        <span className="font-medium text-right">${order.cost_total}</span>
+                                        <span className="font-medium text-right">
+                                            ${(parseFloat(order.cost_parts || 0) + parseFloat(order.cost_labor || 0)).toFixed(2)}
+                                        </span>
                                     </div>
                                 )}
                             </div>
@@ -137,9 +169,22 @@ export default function Maintenance() {
                                 <span className="text-xs text-muted-foreground truncate max-w-[150px]">
                                     {order.notes || 'Sin notas'}
                                 </span>
-                                <span className="text-xs font-medium text-primary group-hover:underline">
-                                    Ver detalles →
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => handleEdit(order)}
+                                        className="p-1.5 rounded-md hover:bg-accent transition-colors"
+                                        title="Editar"
+                                    >
+                                        <Edit2 className="h-4 w-4 text-muted-foreground" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(order.id)}
+                                        className="p-1.5 rounded-md hover:bg-destructive/10 transition-colors"
+                                        title="Eliminar"
+                                    >
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -151,6 +196,13 @@ export default function Maintenance() {
                     )}
                 </div>
             )}
+
+            {/* Form Modal */}
+            <MaintenanceForm
+                isOpen={isFormOpen}
+                onClose={handleCloseForm}
+                orderToEdit={selectedOrder}
+            />
         </div>
     );
 }
