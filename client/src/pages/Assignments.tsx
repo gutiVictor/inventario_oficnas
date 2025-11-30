@@ -1,14 +1,25 @@
-import { useQuery } from '@tanstack/react-query';
-import { assignmentsAPI } from '../services/api';
-import { ClipboardList, Search, Filter, Calendar, User, Package } from 'lucide-react';
 import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { assignmentsAPI } from '../services/api';
+import { ClipboardList, Search, Filter, Calendar, User, Package, Edit2, Trash2 } from 'lucide-react';
+import AssignmentForm from '../components/forms/AssignmentForm';
 
 export default function Assignments() {
+    const queryClient = useQueryClient();
     const [search, setSearch] = useState('');
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
 
     const { data, isLoading, error } = useQuery({
         queryKey: ['assignments'],
         queryFn: () => assignmentsAPI.getAll(),
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: (id: number) => assignmentsAPI.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['assignments'] });
+        },
     });
 
     const assignments = Array.isArray(data?.data?.data) ? data.data.data : (Array.isArray(data?.data) ? data.data : []);
@@ -18,6 +29,22 @@ export default function Assignments() {
         assignment.asset_tag?.toLowerCase().includes(search.toLowerCase()) ||
         assignment.user_name?.toLowerCase().includes(search.toLowerCase())
     );
+
+    const handleEdit = (assignment: any) => {
+        setSelectedAssignment(assignment);
+        setIsFormOpen(true);
+    };
+
+    const handleDelete = (id: number) => {
+        if (window.confirm('¿Estás seguro de eliminar esta asignación?')) {
+            deleteMutation.mutate(id);
+        }
+    };
+
+    const handleCloseForm = () => {
+        setIsFormOpen(false);
+        setSelectedAssignment(null);
+    };
 
     return (
         <div className="space-y-6">
@@ -31,7 +58,10 @@ export default function Assignments() {
                         Control de asignación de activos a empleados
                     </p>
                 </div>
-                <button className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+                <button
+                    onClick={() => setIsFormOpen(true)}
+                    className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
                     <ClipboardList className="h-4 w-4" />
                     Nueva Asignación
                 </button>
@@ -76,13 +106,14 @@ export default function Assignments() {
                                 <th className="text-left p-4 font-medium">Fecha Asignación</th>
                                 <th className="text-left p-4 font-medium">Fecha Retorno</th>
                                 <th className="text-left p-4 font-medium">Estado</th>
+                                <th className="text-right p-4 font-medium">Acciones</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
                             {filteredAssignments.map((assignment: any) => (
                                 <tr
                                     key={assignment.id}
-                                    className="text-sm text-foreground hover:bg-accent/50 cursor-pointer transition-colors"
+                                    className="text-sm text-foreground hover:bg-accent/50 transition-colors"
                                 >
                                     <td className="p-4">
                                         <div className="flex items-center gap-3">
@@ -122,18 +153,36 @@ export default function Assignments() {
                                     <td className="p-4">
                                         <span
                                             className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${assignment.status === 'active'
-                                                    ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400'
-                                                    : 'bg-gray-500/10 text-gray-700 dark:text-gray-400'
+                                                ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400'
+                                                : 'bg-gray-500/10 text-gray-700 dark:text-gray-400'
                                                 }`}
                                         >
                                             {assignment.status === 'active' ? 'Asignado' : 'Retornado'}
                                         </span>
                                     </td>
+                                    <td className="p-4">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => handleEdit(assignment)}
+                                                className="p-1.5 rounded-md hover:bg-accent transition-colors"
+                                                title="Editar"
+                                            >
+                                                <Edit2 className="h-4 w-4 text-muted-foreground" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(assignment.id)}
+                                                className="p-1.5 rounded-md hover:bg-destructive/10 transition-colors"
+                                                title="Eliminar"
+                                            >
+                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                             {filteredAssignments.length === 0 && (
                                 <tr>
-                                    <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                                    <td colSpan={6} className="p-8 text-center text-muted-foreground">
                                         No se encontraron asignaciones
                                     </td>
                                 </tr>
@@ -142,6 +191,13 @@ export default function Assignments() {
                     </table>
                 </div>
             )}
+
+            {/* Form Modal */}
+            <AssignmentForm
+                isOpen={isFormOpen}
+                onClose={handleCloseForm}
+                assignmentToEdit={selectedAssignment}
+            />
         </div>
     );
 }
