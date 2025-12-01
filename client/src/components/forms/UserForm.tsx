@@ -17,11 +17,10 @@ export default function UserForm({ isOpen, onClose, userToEdit }: UserFormProps)
     const [formData, setFormData] = useState({
         full_name: '',
         email: '',
-        phone: '',
         department: '',
         job_title: '',
         employee_id: '',
-        status: 'active',
+        active: true,
     });
     const [error, setError] = useState('');
 
@@ -30,21 +29,19 @@ export default function UserForm({ isOpen, onClose, userToEdit }: UserFormProps)
             setFormData({
                 full_name: userToEdit.full_name || '',
                 email: userToEdit.email || '',
-                phone: userToEdit.phone || '',
                 department: userToEdit.department || '',
                 job_title: userToEdit.job_title || '',
                 employee_id: userToEdit.employee_id || '',
-                status: userToEdit.status || 'active',
+                active: userToEdit.active !== undefined ? userToEdit.active : true,
             });
         } else {
             setFormData({
                 full_name: '',
                 email: '',
-                phone: '',
                 department: '',
                 job_title: '',
                 employee_id: '',
-                status: 'active',
+                active: true,
             });
         }
         setError('');
@@ -52,10 +49,15 @@ export default function UserForm({ isOpen, onClose, userToEdit }: UserFormProps)
 
     const mutation = useMutation({
         mutationFn: (data: any) => {
+            // Add created_by or updated_by (hardcoded to 1 for now, should use actual user ID)
+            const payload = {
+                ...data,
+                ...(userToEdit ? { updated_by: 1 } : { created_by: 1 })
+            };
             if (userToEdit) {
-                return usersAPI.update(userToEdit.id, data);
+                return usersAPI.update(userToEdit.id, payload);
             }
-            return usersAPI.create(data);
+            return usersAPI.create(payload);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -98,24 +100,15 @@ export default function UserForm({ isOpen, onClose, userToEdit }: UserFormProps)
                     placeholder="Ej: Juan Pérez"
                 />
 
-                <div className="grid grid-cols-2 gap-4">
-                    <Input
-                        label="Email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        placeholder="juan@empresa.com"
-                    />
-                    <Input
-                        label="Teléfono"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        placeholder="+57 300 123 4567"
-                    />
-                </div>
+                <Input
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    placeholder="juan@empresa.com"
+                />
 
                 <div className="grid grid-cols-2 gap-4">
                     <Input
@@ -123,6 +116,7 @@ export default function UserForm({ isOpen, onClose, userToEdit }: UserFormProps)
                         name="department"
                         value={formData.department}
                         onChange={handleChange}
+                        required
                         placeholder="Ej: TI, Ventas"
                     />
                     <Input
@@ -130,6 +124,7 @@ export default function UserForm({ isOpen, onClose, userToEdit }: UserFormProps)
                         name="job_title"
                         value={formData.job_title}
                         onChange={handleChange}
+                        required
                         placeholder="Ej: Desarrollador"
                     />
                 </div>
@@ -144,12 +139,12 @@ export default function UserForm({ isOpen, onClose, userToEdit }: UserFormProps)
                     />
                     <Select
                         label="Estado"
-                        name="status"
-                        value={formData.status}
-                        onChange={handleChange}
+                        name="active"
+                        value={formData.active ? 'true' : 'false'}
+                        onChange={(e) => setFormData(prev => ({ ...prev, active: e.target.value === 'true' }))}
                         options={[
-                            { value: 'active', label: 'Activo' },
-                            { value: 'inactive', label: 'Inactivo' },
+                            { value: 'true', label: 'Activo' },
+                            { value: 'false', label: 'Inactivo' },
                         ]}
                     />
                 </div>
