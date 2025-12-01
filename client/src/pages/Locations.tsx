@@ -1,10 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
 import { locationsAPI } from '../services/api';
-import { MapPin, Search, Filter, Building2 } from 'lucide-react';
+import { MapPin, Search, Filter, Building2, Plus, Edit2 } from 'lucide-react';
 import { useState } from 'react';
+import LocationForm from '../components/forms/LocationForm';
+import Button from '../components/ui/Button';
 
 export default function Locations() {
     const [search, setSearch] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [locationToEdit, setLocationToEdit] = useState<any>(null);
+
+    const handleEdit = (location: any) => {
+        setLocationToEdit(location);
+        setIsModalOpen(true);
+    };
+
+    const handleClose = () => {
+        setIsModalOpen(false);
+        setLocationToEdit(null);
+    };
 
     const { data, isLoading, error } = useQuery({
         queryKey: ['locations'],
@@ -31,10 +45,10 @@ export default function Locations() {
                         Sedes y oficinas de la empresa
                     </p>
                 </div>
-                <button className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-                    <MapPin className="h-4 w-4" />
+                <Button onClick={() => setIsModalOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
                     Nueva Ubicación
-                </button>
+                </Button>
             </div>
 
             {/* Search and Filters */}
@@ -83,8 +97,11 @@ export default function Locations() {
                                         <p className="text-sm text-muted-foreground">Código: {location.code || 'N/A'}</p>
                                     </div>
                                 </div>
-                                <span className="inline-flex items-center rounded-full bg-green-500/10 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400">
-                                    Activo
+                                <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${location.active
+                                        ? 'bg-green-500/10 text-green-700 dark:text-green-400'
+                                        : 'bg-red-500/10 text-red-700 dark:text-red-400'
+                                    }`}>
+                                    {location.active ? 'Activo' : 'Inactivo'}
                                 </span>
                             </div>
 
@@ -99,9 +116,13 @@ export default function Locations() {
                                 <span className="text-xs text-muted-foreground">
                                     ID: {location.id}
                                 </span>
-                                <span className="text-xs font-medium text-primary group-hover:underline">
-                                    Ver detalles →
-                                </span>
+                                <button
+                                    onClick={() => handleEdit(location)}
+                                    className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
+                                >
+                                    <Edit2 className="h-3 w-3" />
+                                    Editar
+                                </button>
                             </div>
                         </div>
                     ))}
@@ -113,6 +134,12 @@ export default function Locations() {
                     )}
                 </div>
             )}
+
+            <LocationForm
+                isOpen={isModalOpen}
+                onClose={handleClose}
+                locationToEdit={locationToEdit}
+            />
         </div>
     );
 }
