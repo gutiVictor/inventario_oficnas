@@ -53,6 +53,7 @@ app.use('/api/maintenance-orders', require('./routes/maintenance.routes'));
 app.use('/api/asset-assignments', require('./routes/assignments.routes'));
 app.use('/api/asset-moves', require('./routes/moves.routes'));
 app.use('/api/audit-logs', require('./routes/audit.routes'));
+app.use('/api/dashboard', require('./routes/dashboard.routes'));
 
 // 404 Handler - must be after all routes
 app.use(notFoundHandler);

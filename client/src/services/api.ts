@@ -104,4 +104,12 @@ export const auditAPI = {
     getById: (id: number) => api.get(`/audit-logs/${id}`),
 };
 
+export const dashboardAPI = {
+    getSummary: () => api.get('/dashboard/summary'),
+    getStatusDistribution: () => api.get('/dashboard/status-distribution'),
+    getValueByCategory: () => api.get('/dashboard/value-by-category'),
+    getMaintenanceCosts: () => api.get('/dashboard/maintenance-costs'),
+    getAssetsByLocation: () => api.get('/dashboard/assets-by-location'),
+};
+
 export default api;
