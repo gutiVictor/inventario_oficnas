@@ -1,10 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
 import { suppliersAPI } from '../services/api';
-import { Store, Search, Filter, Phone, Mail, Globe } from 'lucide-react';
+import { Store, Search, Filter, Phone, Mail, Globe, Plus, Edit2 } from 'lucide-react';
 import { useState } from 'react';
+import SupplierForm from '../components/forms/SupplierForm';
+import Button from '../components/ui/Button';
 
 export default function Suppliers() {
     const [search, setSearch] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [supplierToEdit, setSupplierToEdit] = useState<any>(null);
+
+    const handleEdit = (supplier: any) => {
+        setSupplierToEdit(supplier);
+        setIsModalOpen(true);
+    };
+
+    const handleClose = () => {
+        setIsModalOpen(false);
+        setSupplierToEdit(null);
+    };
 
     const { data, isLoading, error } = useQuery({
         queryKey: ['suppliers'],
@@ -31,10 +45,10 @@ export default function Suppliers() {
                         Gestión de proveedores y servicios externos
                     </p>
                 </div>
-                <button className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-                    <Store className="h-4 w-4" />
+                <Button onClick={() => setIsModalOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
                     Nuevo Proveedor
-                </button>
+                </Button>
             </div>
 
             {/* Search and Filters */}
@@ -75,7 +89,7 @@ export default function Suppliers() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-foreground">{supplier.name}</h3>
-                                    <p className="text-sm text-muted-foreground">{supplier.contact_name || 'Sin contacto'}</p>
+                                    <p className="text-sm text-muted-foreground">{supplier.contact_person || 'Sin contacto'}</p>
                                 </div>
                             </div>
 
@@ -103,12 +117,24 @@ export default function Suppliers() {
                             </div>
 
                             <div className="mt-4 pt-4 border-t border-border flex justify-between items-center">
-                                <span className="text-xs text-muted-foreground">
-                                    ID: {supplier.id}
-                                </span>
-                                <span className="text-xs font-medium text-primary group-hover:underline">
-                                    Ver detalles →
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${supplier.active
+                                            ? 'bg-green-500/10 text-green-700 dark:text-green-400'
+                                            : 'bg-red-500/10 text-red-700 dark:text-red-400'
+                                        }`}>
+                                        {supplier.active ? 'Activo' : 'Inactivo'}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                        ID: {supplier.id}
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={() => handleEdit(supplier)}
+                                    className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
+                                >
+                                    <Edit2 className="h-3 w-3" />
+                                    Editar
+                                </button>
                             </div>
                         </div>
                     ))}
@@ -120,6 +146,12 @@ export default function Suppliers() {
                     )}
                 </div>
             )}
+
+            <SupplierForm
+                isOpen={isModalOpen}
+                onClose={handleClose}
+                supplierToEdit={supplierToEdit}
+            />
         </div>
     );
 }
