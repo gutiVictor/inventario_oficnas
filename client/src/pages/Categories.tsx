@@ -1,10 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
 import { categoriesAPI } from '../services/api';
-import { FolderTree, Search, Filter, ChevronRight, Folder } from 'lucide-react';
+import { FolderTree, Search, Filter, ChevronRight, Folder, Plus, Edit2 } from 'lucide-react';
 import { useState } from 'react';
+import CategoryForm from '../components/forms/CategoryForm';
+import Button from '../components/ui/Button';
 
 export default function Categories() {
     const [search, setSearch] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [categoryToEdit, setCategoryToEdit] = useState<any>(null);
+
+    const handleEdit = (category: any) => {
+        setCategoryToEdit(category);
+        setIsModalOpen(true);
+    };
+
+    const handleClose = () => {
+        setIsModalOpen(false);
+        setCategoryToEdit(null);
+    };
 
     const { data, isLoading, error } = useQuery({
         queryKey: ['categories'],
@@ -30,10 +44,10 @@ export default function Categories() {
                         Clasificación de activos y equipos
                     </p>
                 </div>
-                <button className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-                    <FolderTree className="h-4 w-4" />
+                <Button onClick={() => setIsModalOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
                     Nueva Categoría
-                </button>
+                </Button>
             </div>
 
             {/* Search and Filters */}
@@ -76,16 +90,28 @@ export default function Categories() {
                                     <div>
                                         <h3 className="font-medium text-foreground">{category.name}</h3>
                                         <p className="text-sm text-muted-foreground">
-                                            {category.description || 'Sin descripción'}
+                                            {category.parent_id ? `Subcategoría de ID: ${category.parent_id}` : 'Categoría Principal'}
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-4">
+                                    <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${category.active
+                                            ? 'bg-green-500/10 text-green-700 dark:text-green-400'
+                                            : 'bg-red-500/10 text-red-700 dark:text-red-400'
+                                        }`}>
+                                        {category.active ? 'Activo' : 'Inactivo'}
+                                    </span>
                                     <span className="text-xs text-muted-foreground">
                                         ID: {category.id}
                                     </span>
-                                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                                    <button
+                                        onClick={() => handleEdit(category)}
+                                        className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
+                                    >
+                                        <Edit2 className="h-3 w-3" />
+                                        Editar
+                                    </button>
                                 </div>
                             </div>
                         ))}
@@ -98,6 +124,12 @@ export default function Categories() {
                     </div>
                 </div>
             )}
+
+            <CategoryForm
+                isOpen={isModalOpen}
+                onClose={handleClose}
+                categoryToEdit={categoryToEdit}
+            />
         </div>
     );
 }
