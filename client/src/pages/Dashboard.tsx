@@ -1,30 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { DollarSign, Wrench, Users, AlertTriangle, Activity } from 'lucide-react';
+import { Package, Activity, Users, FolderTree } from 'lucide-react';
 import { dashboardAPI } from '../services/api';
 import KPICard from '../components/dashboard/KPICard';
-import { StatusDistributionChart, ValueByCategoryChart, MaintenanceCostsChart } from '../components/dashboard/DashboardCharts';
+import { StatusDistributionChart, AssetCountByCategoryChart, AssetsByLocationChart } from '../components/dashboard/DashboardCharts';
 
 const Dashboard = () => {
     const [summary, setSummary] = useState<any>(null);
     const [statusData, setStatusData] = useState<any[]>([]);
     const [categoryData, setCategoryData] = useState<any[]>([]);
-    const [maintenanceData, setMaintenanceData] = useState<any[]>([]);
+    const [locationData, setLocationData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [summaryRes, statusRes, categoryRes, maintenanceRes] = await Promise.all([
+                const [summaryRes, statusRes, categoryRes, locationRes] = await Promise.all([
                     dashboardAPI.getSummary(),
                     dashboardAPI.getStatusDistribution(),
-                    dashboardAPI.getValueByCategory(),
-                    dashboardAPI.getMaintenanceCosts()
+                    dashboardAPI.getCountByCategory(),
+                    dashboardAPI.getAssetsByLocation()
                 ]);
 
                 setSummary(summaryRes.data.data);
                 setStatusData(statusRes.data.data);
                 setCategoryData(categoryRes.data.data);
-                setMaintenanceData(maintenanceRes.data.data);
+                setLocationData(locationRes.data.data);
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
             } finally {
@@ -55,29 +55,28 @@ const Dashboard = () => {
             {/* KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <KPICard
-                    title="Valor Total Activos"
-                    value={`$${summary?.totalValue?.toLocaleString()}`}
-                    icon={DollarSign}
+                    title="Total de Activos"
+                    value={summary?.totalAssets}
+                    icon={Package}
                     color="blue"
                 />
                 <KPICard
-                    title="Gasto Mantenimiento (YTD)"
-                    value={`$${summary?.maintenanceCosts?.toLocaleString()}`}
-                    icon={Wrench}
-                    color="red"
+                    title="Activos Activos"
+                    value={summary?.activeAssets}
+                    icon={Activity}
+                    color="green"
                 />
                 <KPICard
                     title="Tasa de Asignación"
                     value={`${summary?.assignmentRate?.toFixed(1)}%`}
                     icon={Users}
-                    color="green"
+                    color="purple"
                 />
                 <KPICard
-                    title="Equipos por Reemplazar"
-                    value={summary?.assetsToReplace}
-                    icon={AlertTriangle}
+                    title="Categorías Activas"
+                    value={summary?.totalCategories}
+                    icon={FolderTree}
                     color="yellow"
-                    trend="Atención requerida"
                 />
             </div>
 
@@ -91,15 +90,15 @@ const Dashboard = () => {
                     <StatusDistributionChart data={statusData} />
                 </div>
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Valor por Categoría</h3>
-                    <ValueByCategoryChart data={categoryData} />
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Activos por Categoría</h3>
+                    <AssetCountByCategoryChart data={categoryData} />
                 </div>
             </div>
 
             {/* Charts Row 2 */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Costos de Mantenimiento Mensual</h3>
-                <MaintenanceCostsChart data={maintenanceData} />
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Distribución por Ubicación</h3>
+                <AssetsByLocationChart data={locationData} />
             </div>
         </div>
     );

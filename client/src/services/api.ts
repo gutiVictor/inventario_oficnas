@@ -107,7 +107,7 @@ export const auditAPI = {
 export const dashboardAPI = {
     getSummary: () => api.get('/dashboard/summary'),
     getStatusDistribution: () => api.get('/dashboard/status-distribution'),
-    getValueByCategory: () => api.get('/dashboard/value-by-category'),
+    getCountByCategory: () => api.get('/dashboard/count-by-category'),
     getMaintenanceCosts: () => api.get('/dashboard/maintenance-costs'),
     getAssetsByLocation: () => api.get('/dashboard/assets-by-location'),
 };

@@ -43,14 +43,14 @@ export const StatusDistributionChart: React.FC<StatusDistributionProps> = ({ dat
     );
 };
 
-interface ValueByCategoryProps {
-    data: { name: string; value: string }[];
+interface AssetCountByCategoryProps {
+    data: { name: string; count: string }[];
 }
 
-export const ValueByCategoryChart: React.FC<ValueByCategoryProps> = ({ data }) => {
+export const AssetCountByCategoryChart: React.FC<AssetCountByCategoryProps> = ({ data }) => {
     const chartData = data.map(item => ({
         name: item.name,
-        value: parseFloat(item.value)
+        count: parseInt(item.count)
     }));
 
     return (
@@ -60,8 +60,8 @@ export const ValueByCategoryChart: React.FC<ValueByCategoryProps> = ({ data }) =
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
-                    <Tooltip formatter={(value) => `$${value}`} />
-                    <Bar dataKey="value" fill="#8884d8" radius={[4, 4, 0, 0]} />
+                    <Tooltip formatter={(value) => `${value} activos`} />
+                    <Bar dataKey="count" fill="#8884d8" radius={[4, 4, 0, 0]} />
                 </BarChart>
             </ResponsiveContainer>
         </div>
@@ -88,6 +88,31 @@ export const MaintenanceCostsChart: React.FC<MaintenanceCostsProps> = ({ data })
                     <Tooltip formatter={(value) => `$${value}`} />
                     <Line type="monotone" dataKey="total" stroke="#82ca9d" strokeWidth={2} />
                 </LineChart>
+            </ResponsiveContainer>
+        </div>
+    );
+};
+
+interface AssetsByLocationProps {
+    data: { name: string; count: string }[];
+}
+
+export const AssetsByLocationChart: React.FC<AssetsByLocationProps> = ({ data }) => {
+    const chartData = data.map(item => ({
+        name: item.name,
+        count: parseInt(item.count)
+    }));
+
+    return (
+        <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" />
+                    <YAxis dataKey="name" type="category" width={120} />
+                    <Tooltip formatter={(value) => `${value} activos`} />
+                    <Bar dataKey="count" fill="#10b981" radius={[0, 4, 4, 0]} />
+                </BarChart>
             </ResponsiveContainer>
         </div>
     );

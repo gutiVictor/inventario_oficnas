@@ -4,52 +4,36 @@ const { sendSuccess } = require('../utils/responses');
 // Get dashboard summary KPIs
 const getDashboardSummary = async (req, res, next) => {
   try {
-    // Total Asset Value
-    const totalValueQuery = `
-      SELECT SUM(acquisition_value) as total_value 
-      FROM assets 
-      WHERE status = 'active'
-    `;
-    const totalValueResult = await db.query(totalValueQuery);
-    const totalValue = parseFloat(totalValueResult.rows[0].total_value || 0);
+    // Total Assets Count
+    const totalAssetsQuery = `SELECT COUNT(*) as count FROM assets`;
+    const totalAssetsResult = await db.query(totalAssetsQuery);
+    const totalAssets = parseInt(totalAssetsResult.rows[0].count || 0);
 
-    // Maintenance Costs (YTD)
-    const maintenanceCostsQuery = `
-      SELECT SUM(cost_parts + cost_labor) as total_cost 
-      FROM maintenance_orders 
-      WHERE EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)
-    `;
-    const maintenanceCostsResult = await db.query(maintenanceCostsQuery);
-    const maintenanceCosts = parseFloat(maintenanceCostsResult.rows[0].total_cost || 0);
+    // Active Assets Count
+    const activeAssetsQuery = `SELECT COUNT(*) as count FROM assets WHERE status = 'active'`;
+    const activeAssetsResult = await db.query(activeAssetsQuery);
+    const activeAssets = parseInt(activeAssetsResult.rows[0].count || 0);
 
     // Assignment Rate
-    const totalAssetsQuery = `SELECT COUNT(*) as count FROM assets WHERE status = 'active'`;
     const assignedAssetsQuery = `SELECT COUNT(*) as count FROM asset_assignments WHERE status = 'active'`;
-    
-    const [totalAssetsResult, assignedAssetsResult] = await Promise.all([
-      db.query(totalAssetsQuery),
-      db.query(assignedAssetsQuery)
-    ]);
-
-    const totalAssets = parseInt(totalAssetsResult.rows[0].count || 0);
+    const assignedAssetsResult = await db.query(assignedAssetsQuery);
     const assignedAssets = parseInt(assignedAssetsResult.rows[0].count || 0);
-    const assignmentRate = totalAssets > 0 ? (assignedAssets / totalAssets) * 100 : 0;
+    const assignmentRate = activeAssets > 0 ? (assignedAssets / activeAssets) * 100 : 0;
 
-    // Assets to Replace
-    const assetsToReplaceQuery = `
-      SELECT COUNT(*) as count 
-      FROM assets 
-      WHERE (acquisition_date + (useful_life_months || ' months')::interval) < CURRENT_DATE
-      AND status = 'active'
+    // Total Categories
+    const totalCategoriesQuery = `
+      SELECT COUNT(DISTINCT category_id) as count 
+      FROM assets
+      WHERE category_id IS NOT NULL
     `;
-    const assetsToReplaceResult = await db.query(assetsToReplaceQuery);
-    const assetsToReplace = parseInt(assetsToReplaceResult.rows[0].count || 0);
+    const totalCategoriesResult = await db.query(totalCategoriesQuery);
+    const totalCategories = parseInt(totalCategoriesResult.rows[0].count || 0);
 
     sendSuccess(res, {
-      totalValue,
-      maintenanceCosts,
+      totalAssets,
+      activeAssets,
       assignmentRate,
-      assetsToReplace
+      totalCategories
     });
   } catch (error) {
     next(error);
@@ -71,16 +55,16 @@ const getAssetStatusDistribution = async (req, res, next) => {
   }
 };
 
-// Get asset value by category
-const getAssetValueByCategory = async (req, res, next) => {
+// Get asset count by category
+const getAssetCountByCategory = async (req, res, next) => {
   try {
     const query = `
-      SELECT c.name, SUM(a.acquisition_value) as value 
+      SELECT c.name, COUNT(*) as count 
       FROM assets a 
       JOIN categories c ON a.category_id = c.id 
       WHERE a.status = 'active'
       GROUP BY c.name
-      ORDER BY value DESC
+      ORDER BY count DESC
     `;
     const result = await db.query(query);
     sendSuccess(res, result.rows);
@@ -127,7 +111,7 @@ const getAssetsByLocation = async (req, res, next) => {
 module.exports = {
   getDashboardSummary,
   getAssetStatusDistribution,
-  getAssetValueByCategory,
+  getAssetCountByCategory,
   getMaintenanceCosts,
   getAssetsByLocation
 };
