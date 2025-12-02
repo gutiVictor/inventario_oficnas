@@ -139,6 +139,9 @@ export default function Assets() {
                       {asset.status}
                     </span>
                   </td>
+                  <td className="p-4">
+                    <span className="text-sm">{asset.condition}</span>
+                  </td>
                   <td className="p-4 text-right">
                     <div className="flex justify-end gap-2">
                       <button
