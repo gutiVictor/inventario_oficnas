@@ -110,6 +110,9 @@ export const dashboardAPI = {
     getCountByCategory: () => api.get('/dashboard/count-by-category'),
     getMaintenanceCosts: () => api.get('/dashboard/maintenance-costs'),
     getAssetsByLocation: () => api.get('/dashboard/assets-by-location'),
+    getAssetValueTrends: () => api.get('/dashboard/asset-value-trends'),
+    getTopSuppliers: () => api.get('/dashboard/top-suppliers'),
+    getRecentActivity: () => api.get('/dashboard/recent-activity'),
 };
 
 export default api;

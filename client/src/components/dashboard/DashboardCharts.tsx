@@ -117,3 +117,93 @@ export const AssetsByLocationChart: React.FC<AssetsByLocationProps> = ({ data })
         </div>
     );
 };
+
+interface AssetValueTrendProps {
+    data: { month: string; total_value: string; asset_count: string }[];
+}
+
+export const AssetValueTrendChart: React.FC<AssetValueTrendProps> = ({ data }) => {
+    const chartData = data.map(item => ({
+        month: item.month,
+        value: parseFloat(item.total_value),
+        count: parseInt(item.asset_count)
+    }));
+
+    return (
+        <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis
+                        dataKey="month"
+                        stroke="#6b7280"
+                        style={{ fontSize: '12px' }}
+                    />
+                    <YAxis
+                        stroke="#6b7280"
+                        style={{ fontSize: '12px' }}
+                        tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                    />
+                    <Tooltip
+                        formatter={(value: any, name: string) => {
+                            if (name === 'value') return [`$${parseFloat(value).toLocaleString()}`, 'Valor Total'];
+                            return [value, 'Activos Comprados'];
+                        }}
+                        contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                    />
+                    <Legend />
+                    <Line
+                        type="monotone"
+                        dataKey="value"
+                        stroke="#3b82f6"
+                        strokeWidth={3}
+                        dot={{ r: 4 }}
+                        name="Valor Total"
+                    />
+                    <Line
+                        type="monotone"
+                        dataKey="count"
+                        stroke="#10b981"
+                        strokeWidth={2}
+                        dot={{ r: 3 }}
+                        name="Cantidad"
+                    />
+                </LineChart>
+            </ResponsiveContainer>
+        </div>
+    );
+};
+
+interface TopSuppliersProps {
+    data: { name: string; asset_count: string; total_value: string }[];
+}
+
+export const TopSuppliersChart: React.FC<TopSuppliersProps> = ({ data }) => {
+    const chartData = data.map(item => ({
+        name: item.name.length > 20 ? item.name.substring(0, 20) + '...' : item.name,
+        fullName: item.name,
+        count: parseInt(item.asset_count),
+        value: parseFloat(item.total_value)
+    }));
+
+    return (
+        <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} layout="horizontal">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis type="category" dataKey="name" stroke="#6b7280" style={{ fontSize: '12px' }} />
+                    <YAxis type="number" stroke="#6b7280" style={{ fontSize: '12px' }} />
+                    <Tooltip
+                        formatter={(value: any, name: string) => {
+                            if (name === 'Activos Suministrados') return [value, 'Activos'];
+                            return [`$${parseFloat(value).toLocaleString()}`, 'Valor Total'];
+                        }}
+                        contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                    />
+                    <Legend />
+                    <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="Activos Suministrados" />
+                </BarChart>
+            </ResponsiveContainer>
+        </div>
+    );
+};
