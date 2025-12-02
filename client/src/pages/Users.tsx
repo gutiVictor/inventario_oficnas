@@ -4,6 +4,7 @@ import { Users as UsersIcon, Search, Filter, Mail, Briefcase, Building, Edit, Tr
 import { useState } from 'react';
 import UserForm from '../components/forms/UserForm';
 import Button from '../components/ui/Button';
+import ExportButton from '../components/common/ExportButton';
 
 export default function Users() {
     const [search, setSearch] = useState('');
@@ -57,10 +58,13 @@ export default function Users() {
                         Gestión de empleados y usuarios del sistema
                     </p>
                 </div>
-                <Button onClick={handleCreate}>
-                    <UsersIcon className="h-4 w-4 mr-2" />
-                    Nuevo Usuario
-                </Button>
+                <div className="flex gap-3">
+                    <ExportButton module="users" type="excel" />
+                    <Button onClick={handleCreate}>
+                        <UsersIcon className="h-4 w-4 mr-2" />
+                        Nuevo Usuario
+                    </Button>
+                </div>
             </div>
 
             {/* Search and Filters */}

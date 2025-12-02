@@ -4,6 +4,7 @@ import { Store, Search, Filter, Phone, Mail, Globe, Plus, Edit2 } from 'lucide-r
 import { useState } from 'react';
 import SupplierForm from '../components/forms/SupplierForm';
 import Button from '../components/ui/Button';
+import ExportButton from '../components/common/ExportButton';
 
 export default function Suppliers() {
     const [search, setSearch] = useState('');
@@ -45,10 +46,13 @@ export default function Suppliers() {
                         Gestión de proveedores y servicios externos
                     </p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nuevo Proveedor
-                </Button>
+                <div className="flex gap-3">
+                    <ExportButton module="suppliers" type="excel" />
+                    <Button onClick={() => setIsModalOpen(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Nuevo Proveedor
+                    </Button>
+                </div>
             </div>
 
             {/* Search and Filters */}
@@ -119,8 +123,8 @@ export default function Suppliers() {
                             <div className="mt-4 pt-4 border-t border-border flex justify-between items-center">
                                 <div className="flex items-center gap-2">
                                     <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${supplier.active
-                                            ? 'bg-green-500/10 text-green-700 dark:text-green-400'
-                                            : 'bg-red-500/10 text-red-700 dark:text-red-400'
+                                        ? 'bg-green-500/10 text-green-700 dark:text-green-400'
+                                        : 'bg-red-500/10 text-red-700 dark:text-red-400'
                                         }`}>
                                         {supplier.active ? 'Activo' : 'Inactivo'}
                                     </span>

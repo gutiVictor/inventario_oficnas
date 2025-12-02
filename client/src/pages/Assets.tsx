@@ -1,10 +1,12 @@
 
+
 import { useQuery } from '@tanstack/react-query';
 import { assetsAPI } from '../services/api';
 import { Package, Search, Filter, Edit, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import AssetForm from '../components/forms/AssetForm';
 import Button from '../components/ui/Button';
+import ExportButton from '../components/common/ExportButton';
 
 export default function Assets() {
   const [search, setSearch] = useState('');
@@ -51,10 +53,13 @@ export default function Assets() {
             Gestión de activos de la empresa
           </p>
         </div>
-        <Button onClick={handleCreate}>
-          <Package className="h-4 w-4 mr-2" />
-          Nuevo Activo
-        </Button>
+        <div className="flex gap-3">
+          <ExportButton module="assets" type="excel" />
+          <Button onClick={handleCreate}>
+            <Package className="h-4 w-4 mr-2" />
+            Nuevo Activo
+          </Button>
+        </div>
       </div>
 
       {/* Search and Filters */}

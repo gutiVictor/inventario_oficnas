@@ -4,6 +4,7 @@ import { FolderTree, Search, Filter, ChevronRight, Folder, Plus, Edit2 } from 'l
 import { useState } from 'react';
 import CategoryForm from '../components/forms/CategoryForm';
 import Button from '../components/ui/Button';
+import ExportButton from '../components/common/ExportButton';
 
 export default function Categories() {
     const [search, setSearch] = useState('');
@@ -44,10 +45,13 @@ export default function Categories() {
                         Clasificación de activos y equipos
                     </p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nueva Categoría
-                </Button>
+                <div className="flex gap-3">
+                    <ExportButton module="categories" type="excel" />
+                    <Button onClick={() => setIsModalOpen(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Nueva Categoría
+                    </Button>
+                </div>
             </div>
 
             {/* Search and Filters */}
@@ -97,8 +101,8 @@ export default function Categories() {
 
                                 <div className="flex items-center gap-4">
                                     <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${category.active
-                                            ? 'bg-green-500/10 text-green-700 dark:text-green-400'
-                                            : 'bg-red-500/10 text-red-700 dark:text-red-400'
+                                        ? 'bg-green-500/10 text-green-700 dark:text-green-400'
+                                        : 'bg-red-500/10 text-red-700 dark:text-red-400'
                                         }`}>
                                         {category.active ? 'Activo' : 'Inactivo'}
                                     </span>
